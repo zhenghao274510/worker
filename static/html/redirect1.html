@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>Page Title</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" media="screen" href="/static/css/commont.css">
+  <script>
+  window.onload=function(){
+    let window_w = document.documentElement.clientWidth || document.body.clientWidth;
+    let min_w = 375;
+    if (window_w < 320) {
+      document.getElementsByTagName('html')[0].style.fontSize = 100 + 'px';
+    } else {
+
+      document.getElementsByTagName('html')[0].style.fontSize = (window_w / min_w) * 100 + 'px';
+    }
+  }
+  </script>
+  <style>
+    .share_con {
+      /* margin-top: 0.5rem; */
+      width: 100%;
+      height: 100%;
+      background: url("/static/icon/lipinkabeijing.png") no-repeat;
+      background-size: 100% 100%;
+      color: #fff;
+    }
+
+    .share_info {
+      width: 100%;
+      padding: 0.45rem 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    h3 {
+      font-size: 0.24rem;
+      text-align: center;
+      line-height: 0.5rem;
+    }
+
+    i {
+      color: #faf92c;
+    }
+
+    .use_card {
+      font-size: 0.21rem;
+      line-height: 0.35rem;
+    }
+
+    .share_ad {
+      width: 2.68rem;
+      font-size: 0.16rem;
+      line-height: 0.25rem;
+    }
+
+    p {
+      text-align: center;
+    }
+
+ .share_info  div {
+      position: relative;
+      width: 2.35rem;
+      height: 2.76rem;
+      margin: 0.2rem 0;
+      border: 0.03rem solid #acd8ff;
+      background: #fff;
+      border-radius: 0.05rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    img {
+      width: 1.66rem;
+      height: 1.66rem;
+    }
+
+    .share_ma {
+      position: absolute;
+      bottom: 0.34rem;
+      text-align: center;
+      font-size: 0.15rem;
+      color: #666666;
+      line-height: 0.25rem;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="share_con">
+    <div class="share_info">
+      <h3>
+        和天下酒业
+        <i id="title"></i>
+      </h3>
+      <p class="use_card" id="card"></p>
+      <p class="use_card" id="pwd"></p>
+      <div>
+        <img src alt />
+        <p class="share_ma">扫描二维码关注公众号</p>
+      </div>
+
+      <p class="share_ad">联系电话：0595-23195678</p>
+      <p class="share_ad">
+        店铺地址：安溪县城厢镇新兴路149号
+        (特产城移动公司后)
+      </p>
+    </div>
+  </div>
+</body>
+
+</html>
+<script>
+  window.onload = () => {
+    let url = location.search;
+    var theRequest = new Object();
+    if (url.indexOf("?") != -1) {
+      var str = url.substr(1);
+      var strs = str.split("&");
+      for (var i = 0; i < strs.length; i++) {
+        theRequest[strs[i].split("=")[0]] = strs[i].split("=")[1];
+      }
+    }
+    document.getElementById('title').innerHTML = theRequest.title;
+    document.getElementById('card').innerHTML = '卡号:' + theRequest.cardnum;
+    document.getElementById('title').innerHTML = '密码:' + theRequest.pwd;
+  }
+
+ 
+
+</script>
