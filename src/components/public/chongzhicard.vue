@@ -2,32 +2,37 @@
   <div class="li_card">
     <ul>
       <li v-for="(item,index) in list" :key="index">
-        <div class="linkcont">
-          <div class="gif_card_tit">
-            <div class="gif_name">和天下酒业充值卡</div>
-            <div class="gif_name_icon">
-              <i @click.prevent="Goto(item)"></i>
-              <span @click.prevent="Getmsg(index)"></span>
+        <van-swipe-cell :left-width="LftW" :right-width="RightW" :on-close="onClose" :name="index">
+          <div class="linkcont">
+            <div class="gif_card_tit">
+              <div class="gif_name">和天下酒业充值卡</div>
+              <div class="gif_name_icon">
+                <i @click.prevent="Goto(item)"></i>
+                <span @click.prevent="Getmsg(index)"></span>
+              </div>
+            </div>
+            <div class="gif_card_hao" @click="lookdetails(item)">
+              <div>
+                卡号:
+                <span>{{item.cardnum}}</span>
+              </div>
+              <div v-if="item.updatepwd==0">
+                密码:
+                <span>{{item.pwd}}</span>
+              </div>
+            </div>
+            <div class="gif_card_adder" @click="lookdetails(item)">
+              <p class="tel">0595-23195678</p>
+              <p class="addres">安溪县城厢镇新兴路149号(特产城移动公司后)</p>
             </div>
           </div>
-          <div class="gif_card_hao" @click="lookdetails(item)">
-            <div>
-              卡号:
-              <span>{{item.cardnum}}</span>
-            </div>
-            <div>
-              密码:
-              <span>{{item.pwd}}</span>
-            </div>
-          </div>
-          <div class="gif_card_adder" @click="lookdetails(item)">
-            <p class="tel">0595-23195678</p>
-            <p class="addres">安溪县城厢镇新兴路149号(特产城移动公司后)</p>
-          </div>
-        </div>
+          <template slot="right">
+            <van-button square type="danger" text="删除" />
+          </template>
+        </van-swipe-cell>
       </li>
     </ul>
-     <van-popup position="bottom" v-model="MsgShare" :style="{ height: '40%' }">
+    <van-popup position="bottom" v-model="MsgShare" :style="{ height: '40%' }">
       <div class="Share_msg_info">
         <div class="bo_bot clearfix">
           <p>短信分享</p>
@@ -41,22 +46,25 @@
         </div>
       </div>
     </van-popup>
-   
   </div>
 </template>
 
 <script>
 //import 《组件名称》 from '《组件路径》';
-
+import { Dialog } from "vant";
 export default {
   props: ["list"],
   data() {
     return {
       //   短信分享
-      MsgShare:false,
+      MsgShare: false,
       phone: "",
-      uid:'',
-      num:0
+      uid: "",
+      num: 0,
+      LftW: 0,
+      RightW: 58,
+      //   删除卡片
+      cardid: ""
     };
   },
   //监听属性 类似于data概念
@@ -67,45 +75,88 @@ export default {
   components: {},
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    this.uid=sessionStorage.getItem('uid');
+    this.uid = sessionStorage.getItem("uid");
+    console.log(this.list)
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   //方法集合
   methods: {
-    Goto(e) { 
+    Goto(e) {
       console.log(e);
-      e.title="充值卡";
-        this.$router.push({path:'/share',query:{card:JSON.stringify(e)}});
+      e.title = "充值卡";
+      this.$router.push({ path: "/share", query: { card: JSON.stringify(e) } });
     },
-      close(){
-   this.MsgShare=false;
+    close() {
+      this.MsgShare = false;
     },
     Getmsg(ind) {
-      this.MsgShare=true;
-       this.num=ind;
+      this.MsgShare = true;
+      this.num = ind;
     },
-      GotoTell(){
-        let cardid=this.list[this.num].cardid;
-        console.log(cardid)
-        this.phone=document.getElementById('phone').value.trim();
-         let parmas={cmd:'sharingSMS',type:'0',cardid:cardid,phone:this.phone,uid:this.uid};
+    GotoTell() {
+      let cardid = this.list[this.num].cardid;
+      console.log(cardid);
+      this.phone = document.getElementById("phone").value.trim();
+      let parmas = {
+        cmd: "sharingSMS",
+        type: "0",
+        cardid: cardid,
+        phone: this.phone,
+        uid: this.uid
+      };
       let Reg = /^1([35678]\d|5[0-35-9]|7[3678])\d{8}$/;
       let isRegExp = Reg.test(this.phone);
       if (isRegExp) {
-              this.http(parmas).then(res=>{
-                  console.log(res);
-                  this.$toast(res.data.resultNote);
-                  this.MsgShare=false;
-                  this.phone="";
-              })
-      }else{
-        this.$toast('请输入正确的手机号码!')
+        this.http(parmas).then(res => {
+          console.log(res);
+          this.$toast(res.data.resultNote);
+          this.MsgShare = false;
+          this.phone = "";
+        });
+      } else {
+        this.$toast("请输入正确的手机号码!");
       }
-      },
-      lookdetails(e){
-        this.$router.push({path:'/chongzhicarddetials',query:{info:JSON.stringify(e)}});
+    },
+    lookdetails(e) {
+      this.$router.push({
+        path: "/chongzhicarddetials",
+        query: { info: JSON.stringify(e) }
+      });
+    },
+    //  删除 卡片
+    onClose(clickPosition, instance, name) {
+      switch (clickPosition) {
+        case "left":
+        case "cell":
+        case "outside":
+          instance.close();
+          break;
+        case "right":
+          Dialog.confirm({
+            message: "确定删除吗？"
+          }).then(() => {
+            console.log(name.name);
+            // let arry =this.list;
+            this.cardid = this.list[name.name].cardid;
+            let parmas = {
+              cmd: "delCard",
+              type: "0",
+              cardId: this.cardid
+            };
+            this.postRequest(parmas).then(res => {
+              console.log(res);
+              if (res.data.result == 0) {
+                setTimeout(()=>{
+                this.list.splice(name.name, 1);
+                },1000)
+                this.$toast(res.data.resultNote);
+              }
+            });
+          });
+          break;
       }
+    }
   },
   //生命周期 - 创建之前
   beforeCreate() {},
@@ -124,23 +175,42 @@ export default {
 };
 </script>
 <style scoped lang='less' rel='stylesheet/stylus'>
+/deep/.van-cell {
+  background-color: transparent;
+}
+/deep/.van-button {
+  // right: -.2rem;
+  height: 1.44rem;
+}
+/deep/.van-button--danger {
+  background-color: #72bb29;
+  border: none;
+}
+/deep/.van-swipe-cell__right {
+  // right: -.2rem;
+  font-size: 0;
+}
+/deep/.van-swipe-cell {
+  // height: 1.23rem;
+  // width: 3.75rem;
+  position: relative;
+}
 .li_card {
   width: 100%;
   padding: 0 0.15rem;
   ul {
     width: 100%;
-   
+
     li {
       width: 100%;
       height: 1.44rem;
-      border-radius: 0.1rem;
-      background-color: #72bb29;
-       margin-top: .15rem;
-
+      margin-top: 0.15rem;
       .linkcont {
         display: flex;
         flex-direction: column;
         color: #fff;
+        background-color: #72bb29;
+        border-radius: 0.1rem;
         z-index: 2;
         .gif_card_tit {
           display: flex;

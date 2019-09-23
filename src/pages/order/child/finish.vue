@@ -1,7 +1,7 @@
 <template>
   <div class="order_mo">
-    <div class="order_con" v-for="(item,index) in arry" :key="index">
-      <div @click="LookDetails(item)">
+    <div class="order_con" v-for="(item,index) in arry" :key="index" @click="LookDetails(item)">
+      <div >
         <div class="order_tit">
           <span>
             订单编号：

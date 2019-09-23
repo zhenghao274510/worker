@@ -1,6 +1,6 @@
 <template>
   <div class="order_mo">
-    <div class="order_con" v-for="(item,index) in arry" :key="index">
+    <div class="order_con" v-for="(item,index) in arry" :key="index" @click.stop="LookDetails(item)">
       <div class="order_tit">
         <span>
           订单编号：
@@ -67,7 +67,14 @@ export default {
     });
   },
   //方法集合
-  methods: {},
+  methods: {
+     LookDetails(e) {
+      this.$router.replace({
+        path: "/orderdetails",
+        query: { orderid: e.orderid }
+      });
+    }
+  },
   //生命周期 - 创建之前
   beforeCreate() {},
   //生命周期 - 挂载之前

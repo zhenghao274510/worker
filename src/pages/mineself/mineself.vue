@@ -67,7 +67,7 @@ export default {
   //方法集合
   methods: {
     GotoEad() {
-      this.$router.push({ path: "/myaddress" });
+      this.$router.push({ path: "/myaddress",query:{direct:1} });
     },
     Upfiles() {
       var _this = this;

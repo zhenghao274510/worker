@@ -96,11 +96,6 @@ export default {
       console.log(res);
       this.productList = res.data.dataObject.orderItem;
       this.dataObject = res.data.dataObject;
-      // if (res.data.dataObject.receiver) {
-      //   this.receiver = res.data.dataObject.receiver;
-      // } else {
-      //   this.receiver = "";
-      // }
     });
      // 我的收货地址
      if(sessionStorage.getItem('addressId')){
@@ -118,20 +113,11 @@ export default {
       console.log(res);
 
       if (res.data.dataList) {
-
-
-
         this.addressList = res.data.dataList;
         this.addressList.forEach(item => {
-
-
           if(this.addressId==item.addressId){
             this.defaultAddress = item;
             console.log( this.defaultAddress,item)
-          }
-          if (item.isDefault==1 && this.addressId==''){
-            this.defaultAddress = item;
-            this.addressId = this.defaultAddress.addressId;
           }
 
         });

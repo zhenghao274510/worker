@@ -28,7 +28,6 @@
           </li>
         </ul>
       </div>
-      <!-- <Shop-L ></Shop-L> -->
     </div>
     <router-link to class="banner" style="height:1.25rem;">
       <img :src="list.image2" />

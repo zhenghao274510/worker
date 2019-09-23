@@ -298,9 +298,9 @@ export default {
   created() {
     this.uid = sessionStorage.getItem("uid");
     this.cartid = [];
-    this.addressId="";
+    this.addressId = "";
 
-    if (typeof this.$route.query.shop == "string") {
+    if (this.$route.query.shop) {
       this.productList.push(JSON.parse(this.$route.query.shop));
       this.productId = this.productList[0].productid;
       this.skuId = this.productList[0].skuId;
@@ -309,12 +309,8 @@ export default {
       this.productList = JSON.parse(localStorage.getItem("shop"));
       this.productList.forEach(item => {
         this.cartid.push(item.cartId);
-        // console.log(this.cartid, "cartid");
       });
     }
-    // console.log(this.productList, this.productId, this.skuId, this.count);
-
-    // this.uid=this.$store.state.Use.uid;
     //   配送费
     let parmas1 = { cmd: "getFreight" };
     this.postRequest(parmas1).then(res => {
@@ -326,13 +322,11 @@ export default {
       // console.log(res)
       this.CanuseCard = res.data.dataList;
     });
-    //
+    // 获取 id
+     if (sessionStorage.getItem("addressId")) {
+            this.addressId = sessionStorage.getItem("addressId");
+          }
 
-
-    if(sessionStorage.getItem('addressId')){
-      this.addressId=sessionStorage.getItem('addressId');
-    
-    }
     // 我的收货地址
     let parmas3 = {
       cmd: "getAddressList",
@@ -344,36 +338,31 @@ export default {
       console.log(res);
 
       if (res.data.dataList) {
-
-
-
         this.addressList = res.data.dataList;
         this.addressList.forEach(item => {
-
-
-          if(this.addressId==item.addressId){
+         
+          if (this.addressId == item.addressId) {
             this.defaultAddress = item;
-            console.log( this.defaultAddress,item)
-          }
-          if (item.isDefault==1 && this.addressId==''){
+            console.log(this.defaultAddress, item);
+          } else if (item.isDefault == 1 && this.addressId == "") {
             this.defaultAddress = item;
-            this.addressId = this.defaultAddress.addressId;
+            this.addressId = item.addressId;
           }
-
         });
       }
     });
-    console.log(this.addressId)
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   //方法集合
   methods: {
-   gotodetials(e,ind){
-           console.log(e);
-           this.$router.push({path:'/shopdetails',query:{productid:e.productId}});
-   }, 
-
+    gotodetials(e, ind) {
+      console.log(e);
+      this.$router.push({
+        path: "/shopdetails",
+        query: { productid: e.productId }
+      });
+    },
 
     //  充值卡支付
     paybycard() {
@@ -415,7 +404,8 @@ export default {
     },
     //   地址
     goto() {
-      this.$router.push({ path: "/editaddress", query: { direct:0} });
+
+      this.$router.push({ path: "/editaddress", query: {direct: 0}});
     },
     onClick(event) {
       this.choseCard = "";
@@ -464,8 +454,9 @@ export default {
           .catch(() => {
             // on cancel
           });
-      } else if (this.orderId=="") {
+      } else if (this.orderId == "") {
         console.log("开始支付" + "...." + this.orderId);
+        console.log("开始支付" + "...." + this.buyType);
         // console.log(1);
         let parmas = {};
         if (this.productId != "") {
@@ -480,8 +471,8 @@ export default {
             amount: "0.01",
             couponId: this.couponId,
             addressId: this.addressId,
-            payType: this.payType,
-            buyType: this.buyType
+            payType: this.payType.toString(),
+            buyType: this.buyType.toString()
           };
         } else {
           parmas = {
@@ -493,51 +484,51 @@ export default {
             amount: "0.01",
             couponId: this.couponId,
             addressId: this.addressId,
-            payType: this.payType,
-            buyType: this.buyType
+            payType: this.payType.toString(),
+            buyType: this.buyType.toString()
           };
         }
+        console.log(parmas);
         this.pay(parmas).then(res => {
           console.log(res);
           if (res.data.result == 0) {
             this.orderId = res.data.orderId;
-              this.paymony(this.orderId);
-           
+            this.paymony(this.orderId);
           }
         });
-      }else{
+      } else {
         this.paymony(this.orderId);
       }
     },
-         // 支付
-    paymony(orderdata){
-         if (this.cardnun != "" && this.pwd != "" && this.payType == 0) {
-              console.log(orderdata);
-              let parmas = {
-                cmd: "payByRechargeCard",
-                orderid: orderdata,
-                cardnun: this.cardnun,
-                pwd: this.pwd
-              };
-              this.http(parmas).then(res => {
-                if (res.data.result == 0) {
-                  console.log(res);
-                  this.$toast(res.data.resultNote);
-                  setTimeout(() => {
-                    this.$router.replace("/giftcard");
-                  }, 2000);
-                }
-                console.log(res);
-              });
-            } else {
-              let parmas = { cmd: "payByWx", orderid: orderdata };
-              this.http(parmas).then(res => {
-                let data = res.data.body;
-                // console.log(data);
-                this.onBridgeReady(data);
-                // this.Buysuccess();
-              });
-            }
+    // 支付
+    paymony(orderdata) {
+      if (this.cardnun != "" && this.pwd != "" && this.payType == 0) {
+        console.log(orderdata);
+        let parmas = {
+          cmd: "payByRechargeCard",
+          orderid: orderdata,
+          cardnun: this.cardnun,
+          pwd: this.pwd
+        };
+        this.http(parmas).then(res => {
+          if (res.data.result == 0) {
+            console.log(res);
+            this.$toast(res.data.resultNote);
+            setTimeout(() => {
+              this.$router.replace("/giftcard");
+            }, 2000);
+          }
+          console.log(res);
+        });
+      } else {
+        let parmas = { cmd: "payByWx", orderid: orderdata };
+        this.http(parmas).then(res => {
+          let data = res.data.body;
+          // console.log(data);
+          this.onBridgeReady(data);
+          // this.Buysuccess();
+        });
+      }
     },
     //  微信支付
     onBridgeReady(data) {
@@ -592,7 +583,8 @@ export default {
   updated() {},
   //生命周期 - 销毁之前
   beforeDestroy() {
-    sessionStorage.removeItem('addressId');
+    sessionStorage.removeItem("addressId");
+    sessionStorage.removeItem("saveuse");
   },
   //生命周期 - 销毁完成
   destroyed() {},
@@ -612,10 +604,6 @@ export default {
   .info {
     flex: 1;
     text-align: left;
-    // p {
-    //   flex: 1;
-    //   text-align: left;
-    // }
   }
   .pos {
     width: 0.2rem;

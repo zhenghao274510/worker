@@ -1,7 +1,7 @@
 <template>
   <div class="order_mo">
-    <div class="order_con" v-for="(item,index) in arry" :key="index">
-      <div @click="LookDetails(item)">
+    <div class="order_con" v-for="(item,index) in arry" :key="index" @click.stop="LookDetails(item)">
+      <div >
         <div class="order_tit">
           <span>
             订单编号：
@@ -12,7 +12,7 @@
         <Info :list="item.orderItem" :totalprice="total"></Info>
       </div>
       <div class="order_zhuang">
-        <span class="two" @click="shou_huo(item)">确认收货</span>
+        <span class="two" @click.stop="shou_huo(item,index)">确认收货</span>
       </div>
     </div>
     <van-overlay :show="show" @click="show = false" />
@@ -28,7 +28,6 @@ export default {
   data() {
     return {
       show: false,
-      dataList: [],
       arry: [],
       uid: "",
       total: []
@@ -49,7 +48,35 @@ export default {
     // this.uid="1"
     this.arry = [];
      this.uid=sessionStorage.getItem('uid');
-    let params = {
+     this.newData();
+   
+  },
+  //方法集合
+  methods: {
+      shou_huo(e,ind) {
+        console.log(e,ind);
+      let parmas = { cmd: "finishOrder", uid: this.uid, orderid: e.orderid };
+      this.postRequest(parmas).then(res => {
+        if (res.data.result == 0 ) {
+          console.log("成功");
+          Dialog.confirm({
+            title: "确认收货成功",
+            message: "赶快去评论一下~"
+          })
+            .then(() => {       
+              this.$router.replace({
+                path: "/addpingjia",
+                query: { orderid: e.orderid }
+              });
+            }).catch(()=>{
+                this.arry.splice(ind,1);
+            });
+           
+        }
+      });
+    },
+    newData(){
+         let params = {
       cmd: "myOrder",
       uid: this.uid,
       nowPage: "1",
@@ -66,28 +93,8 @@ export default {
         }
       }
     });
-  },
-  //方法集合
-  methods: {
-    shou_huo(e) {
-      let parmas = { cmd: "finishOrder", uid: this.uid, orderid: e.orderid };
-      this.postRequest(parmas).then(res => {
-        if (res.data.result == 0 ) {
-          console.log("成功");
-          Dialog.confirm({
-            title: "确认收货成功",
-            message: "赶快去评论一下~"
-          })
-            .then(() => {
-              this.$router.push({
-                path: "/addpingjia",
-                query: { orderid: e.orderid }
-              });
-            })
-           
-        }
-      });
     },
+  
     LookDetails(e) {
       console.log(e);
       this.$router.push({

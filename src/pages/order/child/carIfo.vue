@@ -2,7 +2,7 @@
   <div>
     <ul class="order_info bg_wh">
       <!-- 订单详情购物车信息 -->
-      <li v-for="(item,index) in list" :key="index" @click.stop="gotodetials(item)">
+      <li v-for="(item,index) in list" :key="index">
         <router-link to>
           <img :src="item.productImage" alt style="width:.8rem;height:.8rem;" />
           <div class="info_name">
@@ -18,7 +18,7 @@
           </div>
         </router-link>
       </li>
-        <div class="order_tot">共{{totalnum}}件商品&nbsp;&nbsp;&nbsp;&nbsp; 合计￥{{totalprice}}</div>
+      <div class="order_tot">共{{totalnum}}件商品&nbsp;&nbsp;&nbsp;&nbsp; 合计￥{{totalprice}}</div>
     </ul>
   </div>
 </template>
@@ -38,9 +38,12 @@ export default {
   computed: {
     totalnum() {
       let num = 0;
-      this.list.forEach(item => {
-        num += parseInt(item.productCount);
-      });
+      if (this.list) {
+        for (let i = 0; i < this.list.length; i++) {
+          num += parseInt(this.list[i].productCount);
+        }
+      }
+
       return num;
     }
   },
@@ -66,11 +69,11 @@ export default {
         .catch(() => {
           // on cancel
         });
-    },
-    gotodetials(e){
-      console.log(e);
-      this.$router.replace({path:'/shopdetails',query:{productid:e.productId}});
     }
+    // gotodetials(e){
+    //   console.log(e);
+    //   this.$router.replace({path:'/shopdetails',query:{productid:e.productId}});
+    // }
   },
   //生命周期 - 创建之前
   beforeCreate() {},

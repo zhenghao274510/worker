@@ -18,6 +18,7 @@
           <van-list
             v-model="loading"
             :finished="finished"
+            loading-text="加载中..."
             finished-text="没有更多了"
             @load="onLoad"
             :offset="50"
@@ -96,7 +97,9 @@ export default {
       itemshow: false,
       popupitem: [],
       itemobj: {},
-      endtime: ""
+      endtime: "",
+      //  推荐页数
+      num:1
     };
   },
   //监听属性 类似于data概念
@@ -112,9 +115,9 @@ export default {
   },
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
-    // this.uid = "0c41177cd51a4645a4c11c5d92e92185";
-    // sessionStorage.setItem('uid',this.uid)
-    this.uid = sessionStorage.getItem("uid");
+    this.uid = "0c41177cd51a4645a4c11c5d92e92185";
+    sessionStorage.setItem('uid',this.uid)
+    // this.uid = sessionStorage.getItem("uid");
     // 是否首次登录
     // console.log(this.uid);
     if (sessionStorage.getItem("first") != 1) {
@@ -148,13 +151,15 @@ export default {
     });
 
     // 为你推荐
+    this.loading=false;
     let parmas3 = { cmd: "toRecommend", nowPage: "1", pageCount: "10" };
     this.pay(parmas3).then(res => {
       if (res.data.result == 0) {
         this.ProductList = res.data.dataList;
         this.ProductObject = res.data;
+    
       }
-      // console.log(res);
+      console.log(res);
     });
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
@@ -165,31 +170,32 @@ export default {
       this.itemshow = false;
     },
     onRefresh() {
+      this.isLoading = true;
       setTimeout(() => {
         // this.$toast("刷新成功");
         this.isLoading = false;
       }, 500);
     },
     onLoad() {
+      this.loading = true;
       // 异步更新数据
       // console.log(1);
       if (this.ProductObject.totalPage > this.num) {
+           
+
+        setTimeout(()=>{
+            this.loading = true;
         this.num += 1;
-        let parmas2 = {
-          cmd: "toRecommend",
-          nowPage: this.num,
-          pageCount: "10"
-        };
-        this.postRequest(parmas2).then(res => {
-          console.log(res);
-          if (res.data.result == 0) {
-            this.ProductList.push(res.data.dataList);
-            this.loading = false;
-          }
-        });
+        this.GetData();
+        },1000)
+      
       } else {
-        this.finished = true;
-        this.loading = false;
+        setTimeout(()=>{
+            this.finished = true;
+         this.loading = false;
+        },1000)
+       
+        
         // this.$toast("没有更多了!");
       }
     },
@@ -227,6 +233,22 @@ export default {
       this.itemobj.productImages[0] = e.logo;
       this.popupitem = e.skuList;
       this.itemshow = true;
+    },
+    //  加载数据 
+    GetData(){
+       
+        let parmas2 = {
+          cmd: "toRecommend",
+          nowPage: this.num,
+          pageCount: "10"
+        };
+        this.postRequest(parmas2).then(res => {
+          console.log(res);
+          if (res.data.result == 0) {
+            this.ProductList.push(res.data.dataList);
+            this.loading = false;
+          }
+        });
     }
   },
   //生命周期 - 创建之前

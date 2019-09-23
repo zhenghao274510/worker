@@ -24,10 +24,15 @@
         <div class="ev_int">
           <textarea name="ev_main" id="ev_main" placeholder="留下您的评价吧（选填）" v-model="content[index]"></textarea>
           <div class="add_con">
-            <div class="add_img" v-for="(item,ind) in imgs" :key="ind" @click="delimg(ind)">
-              <img :src="imgurl+item"   alt />
+            <div
+              class="add_img"
+              v-for="(itemChild,ind) in imgs[num]"
+              :key="ind"
+              @click="delimg(ind)"
+            >
+              <img :src="imgurl+itemChild" alt />
             </div>
-            <div class="add_img" v-if="imgs.length!=3" @click="up(index)">
+            <div class="add_img" v-if="imgs[num].length!=3" @click="up(index)">
               <input type="file" class="upfile" @change="Upfiles" />
               <span></span>
               <p>上传照片</p>
@@ -37,7 +42,7 @@
       </li>
     </ul>
 
-    <div class="end">
+    <div class="public" :class="{'end':length==1,'more':length>1}">
       <input type="button" value="提交" class="btn" @click.prevent="getmsg" />
     </div>
 
@@ -63,15 +68,18 @@ export default {
       imgs: [],
       num: 0,
       dataList: [],
-      imgBase64: [],
-      productId:[],
+      productId: [],
       content: [],
       orderid: "",
       uid: ""
     };
   },
   //监听属性 类似于data概念
-  computed: {},
+  computed: {
+    length() {
+      return this.dataList.length;
+    }
+  },
   //监控data中的数据变化
   watch: {},
   //import引入的组件需要注入到对象中才能使用
@@ -81,81 +89,68 @@ export default {
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
     this.orderid = this.$route.query.orderid;
-   this.uid=sessionStorage.getItem('uid');
+    this.uid = sessionStorage.getItem("uid");
     // this.uid = "1";
-    // console.log(this.orderid);
+    console.log(this.imgurl);
     let parmas = {
       cmd: "orderDetail",
       orderid: this.orderid,
       uid: this.uid
     };
     this.postRequest(parmas).then(res => {
-      console.log(res)
+      console.log(res);
       this.dataList = res.data.dataObject.orderItem;
-        for(var i=0;i<this.dataList.length;i++){
-        this.value[i]=5;
-        this.content[i]="";
-    }
-      
+      for (var i = 0; i < this.dataList.length; i++) {
+        this.value[i] = 5;
+        this.content[i] = "";
+        this.imgs[i] = [];
+      }
     });
- 
-   
-        console.log(this.value,this.content);
+
+    console.log(this.value, this.content, this.imgs);
   },
   //生命周期 - 挂载完成（可以访问DOM元素）
   mounted() {},
   //方法集合
   methods: {
     getmsg() {
-      // if (this.content == "") {
-      //   this.content = "";
-      // }
-      // let upimgs;
-      // if (this.imgs == 0) {
-      //   upimgs = "";
-      // } else {
-      //   this.imgs.forEach(item => {
-      //     upimgs += item + ",";
-      //   });
-      // }
-
-      // console.log(upimgs);
-      // if(this.content==""){
-      //   // this.content='东西很Nice，老板很不错,服务周到!以后常来..'
-      // }
-      var comment=[];
+      var comment = [];
       console.log(this.dataList.length);
-       for(var i=0;i<this.dataList.length;i++ ){
-           comment[i]={
+      for (var i = 0; i < this.dataList.length; i++) {
+        if (this.content[i] == "") {
+          this.content[i] = "东西很Nice，老板很不错,服务周到!以后常来..";
+        }
+        comment[i] = {
           productId: this.dataList[i].productId,
           commentScore: this.value[i].toString(),
           content: this.content[i],
-          images: this.imgs.join(',')
-        }
-        }
-        
+          images: this.imgs[i].join(",")
+        };
+      }
+
       let parmas = {
         cmd: "addOrderComment",
         uid: this.uid,
         orderid: this.orderid,
         comment: comment
       };
-      console.log(parmas)
+      console.log(parmas);
       this.http(parmas).then(res => {
         console.log(res);
         this.$toast(res.data.resultNote);
-        this.content='';
-      setTimeout(()=>{
-        this.$router.back(-1);
-      },1000)
+        this.content = [];
+        setTimeout(() => {
+          this.$router.back(-1);
+        }, 1000);
       });
     },
-    up(ind){
-         this.num=ind;
+    up(ind) {
+      this.num =ind;
     },
 
     Upfiles() {
-      var _this = this;
+      var num = this.num;
+      // console.log(num,this.imgs[num])
       var event = event || window.event;
       var file = event.target.files[0];
       var img = new FormData();
@@ -167,16 +162,18 @@ export default {
         Up.postFile("api/uploadFile", img).then(res => {
           console.log(res);
           if (res.data.result == 0) {
+            console.log(num, this.imgs[num]);
             // this.$toast("上传成功!");
-            _this.imgs.push(res.data.filepath);
+            this.imgs[num].push(res.data.filepath);
           }
         });
       }
     },
     delimg(ind) {
       console.log(1);
+      var num = this.num;
 
-      this.imgs.splice(ind, 1);
+      this.imgs[num].splice(ind, 1);
     }
   },
   //生命周期 - 创建之前
@@ -214,10 +211,10 @@ export default {
   height: 0.56rem;
   opacity: 0;
 }
-.add_ping{
+.add_ping {
   height: 100%;
   overflow-y: auto;
- background-color: #fff;
+  background-color: #fff;
 }
 .add_inf {
   margin-top: 0.5rem;
@@ -326,9 +323,9 @@ export default {
       align-items: center;
       justify-content: space-around;
       position: relative;
-      img{
-        width: .56rem;
-        height: .56rem;
+      img {
+        width: 0.56rem;
+        height: 0.56rem;
       }
       p {
         color: #999999;
@@ -344,11 +341,10 @@ export default {
     }
   }
 }
-.end {
+.public {
   padding: 0.15rem;
   width: 100%;
-  position: absolute;
-  bottom: 0;
+
   .btn {
     width: 100%;
     height: 0.44rem;
@@ -357,5 +353,12 @@ export default {
     margin-top: 0.4rem;
     font-size: 0.14rem;
   }
+}
+.end {
+  position: absolute;
+  bottom: 0;
+}
+.more {
+  margin-top: 0.2rem;
 }
 </style>

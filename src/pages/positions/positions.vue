@@ -200,7 +200,7 @@ export default {
       });
       //解析定位结果
       function onComplete(data) {
-      close.log("成功" + data.position);
+        alert("成功" + data.position);
       }
       //解析定位错误信息
       function onError(data) {

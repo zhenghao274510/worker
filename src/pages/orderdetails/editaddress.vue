@@ -54,7 +54,7 @@ export default {
       phone: "",
       address: "",
       detail: "",
-      isdefault: 1,
+      isdefault: 0,
       direct: 0
     };
   },
@@ -67,6 +67,7 @@ export default {
   //生命周期 - 创建完成（可以访问当前this实例）
   created() {
     this.uid = sessionStorage.getItem("uid");
+  
      
     
     if (this.$route.query.use) {
@@ -75,16 +76,16 @@ export default {
       // this.phone = use.phone;
       this.address = use.province + use.city;
       this.detail = use.address;
-    } else if (this.$route.query.info) {
-        let info=JSON.parse(this.$route.query.info);
+    } else if (sessionStorage.getItem('upaddress')) {
+        let info= JSON.parse( sessionStorage.getItem('upaddress'));
         this.name = info.name;
         this.phone = info.phone;
         this.address = info.address;
         this.detail = info.detail;
         this.isdefault = info.isDefault;
         this.addressId = info.addressId;
-        this.direct = 1;
-        console.log(this.isdefault)
+        this.direct = info.direct;
+        console.log(this.isdefault,info)
       
     }
      if(sessionStorage.getItem('saveuse')){
@@ -100,7 +101,7 @@ export default {
   //方法集合
   methods: {
     changecard() {
-      console.log(1)
+      console.log(this.isdefault)
       if (this.isdefault==1) {
         this.isdefault = 0;
       } else {
@@ -108,14 +109,13 @@ export default {
       }
     },
     save() {
+      console.log(this.isdefault)
       this.name = document.getElementById("name").value.trim();
       this.phone = document.getElementById("phone").value.trim();
       this.address = document.getElementById("address").value.trim();
       this.detail = document.getElementById("detail").value.trim();
 
       console.log(this.name, this.phone);
-      // let Reg = /^1([36758]\d|5[0-35-9]|7[3678])\d{8}$/;
-      // let regname = /^[\u4E00-\u9FA5\uf900-\ufa2d·s]{2,20}$/;
       if (
         this.phone != "" &&
         this.name != "" &&
@@ -123,7 +123,7 @@ export default {
         this.detail != ""
       ) {
         let parmas = {};
-        if (this.direct == 1) {
+        if (this.direct ==1) {
           parmas = {
             cmd: "updateAddress",
             uid: this.uid,
@@ -132,7 +132,7 @@ export default {
             phone: this.phone,
             address: this.address,
             detail: this.detail,
-            isdefault: this.isdefault
+            isdefault: this.isdefault.toString()
           };
         } else {
           parmas = {
@@ -142,7 +142,7 @@ export default {
             phone: this.phone,
             address: this.address,
             detail: this.detail,
-            isdefault: this.isdefault
+            isdefault: this.isdefault.toString()
           };
         }
 
@@ -157,10 +157,13 @@ export default {
             this.phone = "";
             this.address = "";
             this.detail = "";
-
-
             setTimeout(()=>{
-              this.$router.go(-1);
+              if(this.direct==0){
+                this.$router.go(-1);
+
+              }else{
+                this.$router.replace('/myaddress');
+              }
 
             },100);
           }
@@ -181,7 +184,7 @@ export default {
         this.$router.replace("/positions");
     },
     Gotoadd() {
-      this.$router.replace({path:"/myaddress",query:{direct:0}});
+      this.$router.replace({path:"/myaddress",query:{direct:this.direct}});
     },
     delname(){
       document.getElementById("name").value='';
@@ -197,13 +200,11 @@ export default {
   updated() {},
   //生命周期 - 销毁之前
   beforeDestroy() {
-    // if(this.name!='' || this.phone!=""){
-    //   let obj={name:this.name,phone:this.phone}
-    //   sessionStorage.setItem('saveuse',JSON.stringify(obj));
-    // }
   },
   //生命周期 - 销毁完成
-  destroyed() {},
+  destroyed() {
+
+  },
   //如果页面有keep-alive缓存功能，这个函数会触发
   activated() {},
 };

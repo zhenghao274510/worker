@@ -1,7 +1,7 @@
 <template>
   <div class="order_mo">
-    <div class="order_con" v-for="(item,index) in arry" :key="index">
-      <div @click="LookDetails(item)">
+    <div class="order_con" v-for="(item,index) in arry" :key="index" @click.stop="LookDetails(item)">
+      <div >
         <div class="order_tit">
           <span>
             订单编号：
@@ -16,7 +16,7 @@
         class="order_tot"
       >共{{totalnum}}件商品&nbsp;&nbsp;&nbsp;&nbsp; 合计￥{{item.orderAmount}}</div> -->
       <div class="order_zhuang">
-        <span class="one" @click="opcatiy">申请退换</span>
+        <span class="one" @click.stop="opcatiy">申请退换</span>
       </div>
     </div>
     <van-overlay :show="show" @click="show = false" />

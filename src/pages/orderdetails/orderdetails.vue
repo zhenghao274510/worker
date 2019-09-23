@@ -5,6 +5,7 @@
       <div class="tit bg_wh ft_mid pad mg_bot" v-if="status==1">买家已付款,等待配送中</div>
       <div class="tit bg_wh ft_mid pad mg_bot" v-if="status==3">您已收货成功，赶快去评价啦~</div>
       <div class="tit bg_wh ft_mid pad mg_bot" v-if="status==2">正在配送中</div>
+      <!-- <div class="tit bg_wh ft_mid pad mg_bot" v-if="status==3">订单已完成</div> -->
       <div class="de_zhi pad bg_wh">
         <span class="pos"></span>
         <div class="info col_mix no_use">
@@ -68,16 +69,16 @@
           <span class="ft_mid">创建时间：{{productObject.createdDate}}</span>
         </li>
         <li class="col_mid">
-          <span class="ft_mid" v-if="status!=0||status!=5">付款时间：{{productObject.payDate}}</span>
+          <span class="ft_mid" v-if="status!=0">付款时间：{{productObject.payDate}}</span>
         </li>
         <li class="col_mid">
           <span class="ft_mid" v-if="status==5">退款时间：{{productObject.refundDate}}</span>
         </li>
         <li class="col_mid">
-          <span class="ft_mid" v-if="status!=0 || status==4">配送时间：{{productObject.deliveryDate}}</span>
+          <span class="ft_mid" v-if="status==4 || status==1">配送时间：{{productObject.deliveryDate}}</span>
         </li>
         <li class="col_mid">
-          <span class="ft_mid" v-if="status==4">收货时间：{{productObject.finishDate}}</span>
+          <span class="ft_mid" v-if="status==3">收货时间：{{productObject.finishDate}}</span>
         </li>
       </ul>
 
@@ -279,7 +280,8 @@ export default {
   }
 }
 .order_de {
-  overflow: auto;
+  // overflow: hidden;
+  font-size: 0;
 }
 .order_de_info {
   margin-top: 0.5rem;
@@ -388,5 +390,8 @@ export default {
     color: #72bb29;
     margin-left: 0.15rem;
   }
+}
+.info{
+  flex: 1;
 }
 </style>

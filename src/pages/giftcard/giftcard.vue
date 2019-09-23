@@ -7,6 +7,7 @@
       <div class="li_card">
         <ul>
           <li v-for="(item,index) in dataList" :key="index"  @click.stop="GoToGif(item)">
+            <van-swipe-cell :left-width="LftW" :right-width="RightW" :on-close="onClose" :name="index">
             <router-link to>
               <div class="gif_card_tit">
                 <div class="gif_name">和天下酒业礼品卡</div>
@@ -20,7 +21,7 @@
                   卡号:
                   <span>{{item.cardnum}}</span>
                 </div>
-                <div>
+                <div v-if="item.updatepwd==0">
                   密码:
                   <span>{{item.pwd}}</span>
                 </div>
@@ -30,6 +31,10 @@
                 <p class="addres">安溪县城厢镇新兴路149号(特产城移动公司后)</p>
               </div>
             </router-link>
+                <template slot="right">
+            <van-button square type="danger" text="删除" />
+          </template>
+        </van-swipe-cell>
           </li>
         </ul>
       </div>
@@ -54,16 +59,19 @@
 
 <script>
 //import 《组件名称》 from '《组件路径》';
+  import { Dialog } from "vant";
 export default {
   data() {
     return {
       MsgShare: false,
-
       uid: "",
       dataObject: {},
       dataList: [],
       num: 0,
-      phone:''
+      phone:'',
+       LftW: 0,
+      RightW: 58,
+      cardid:''
     };
   },
   //监听属性 类似于data概念
@@ -139,6 +147,40 @@ export default {
         path: "/giftcardetails",
         query: { gift: JSON.stringify(e) }
       });
+    },
+     //  删除 卡片
+    onClose(clickPosition, instance, name) {
+      switch (clickPosition) {
+        case "left":
+        case "cell":
+        case "outside":
+          instance.close();
+          break;
+        case "right":
+          Dialog.confirm({
+            message: "确定删除吗？"
+          }).then(() => {
+            console.log(name.name);
+
+            this.cardid = this.dataList[name.name].cardid;
+            console.log(this.cardid)
+            let parmas = {
+              cmd: "delCard",
+              type: "1",
+              cardId: this.cardid
+            };
+            this.postRequest(parmas).then(res => {
+              console.log(res);
+              if (res.data.result == 0) {
+                setTimeout(()=>{
+                this.dataList.splice(name.name, 1);
+                },1000)
+                this.$toast(res.data.resultNote);
+              }
+            });
+          });
+          break;
+      }
     }
   },
   //生命周期 - 创建之前
@@ -158,6 +200,26 @@ export default {
 };
 </script>
 <style scoped lang='less' rel='stylesheet/stylus'>
+/deep/.van-cell {
+  background-color: transparent;
+}
+/deep/.van-button {
+  // right: -.2rem;
+  height: 1.44rem;
+}
+/deep/.van-button--danger {
+  background-color: #72bb29;
+  border: none;
+}
+/deep/.van-swipe-cell__right {
+  // right: -.2rem;
+  font-size: 0;
+}
+/deep/.van-swipe-cell {
+  // height: 1.23rem;
+  // width: 3.75rem;
+  position: relative;
+}
 .giftcard_top {
   margin-top: 0.5rem;
 }

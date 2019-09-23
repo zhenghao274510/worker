@@ -53,16 +53,12 @@ export default new Router({
       component: resolve => require(['./../pages/mine/mine.vue'], resolve),
       meta: {
         showtabar: true,
-        requireAuth:true
       }
     },
     // 我的订单
     {
       path: '/order',
       component: resolve => require(['./../pages/order/order.vue'], resolve),
-      meta:{
-        requireAuth: true
-      },
       children:[
         { path: '/',
         redirect: 'all'},

@@ -1,6 +1,6 @@
 <template>
   <div class="shop_de">
-    <van-pull-refresh v-model="isLoading" @refresh="onRefresh">
+    <van-pull-refresh v-model="isLoading">
       <div class="banner">
         <van-swipe :autoplay="3000" @change="Onchange" style="height:2.5rem">
           <van-swipe-item
@@ -325,12 +325,6 @@ export default {
           this.addbuy = false;
           break;
       }
-    },
-    onRefresh() {
-      setTimeout(() => {
-        this.$toast("刷新成功");
-        this.isLoading = false;
-      }, 500);
     },
     Route() {
       console.log(1);

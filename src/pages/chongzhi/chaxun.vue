@@ -1,8 +1,19 @@
 <template>
-  <div class="box">
-    <input type="text" placeholder="请输入卡号" v-model="cardnum" id="cardnum" />
+  <div class="box" @click.stop.prevent="changStyle(0)">
+    <input
+      type="text"
+      placeholder="请输入卡号"
+      v-model="cardnum"
+      id="cardnum"
+       @click.stop.prevent="changStyle(1)"
+
+    />
     <input type="password" placeholder="请输入密码" v-model="pwd" id="pwd" />
-    <span class="btn" @click="getmsg">查询</span>
+    <span class="btn" @click.stop="getmsg">查询</span>
+    <ul class="historyclass" v-if="showhistory">
+      <!-- <p style="font-size:.12rem;">lishi</p> -->
+      <li v-for="(item,index) in historylist" :key="index" @click.stop="choose(index)">{{item}}</li>
+    </ul>
   </div>
 </template>
  
@@ -20,19 +31,39 @@ export default {
       dataList: [],
       show: false,
       cardid: "",
-      num: 0
+      num: 0,
+      historylist: [],
+      showhistory: false
     };
   },
   created() {
     // this.num=0
     this.uid = sessionStorage.getItem("uid");
     this.direct = this.$route.query.direct;
+    if (localStorage.getItem("history")) {
+      this.historylist = JSON.parse(localStorage.getItem("history"));
+      console.log(this.historylist);
+    }
+    window.onload=function(){
+
+      let inp=document.getElementById('cardnum')
+      inp.addEventListener('focus',Onfocus,false);
+    }
   },
   methods: {
+    changStyle(ind){
+      switch(ind){
+        case 0:
+        this.showhistory=false;
+        break;
+        case 1:
+        this.showhistory=true;
+      }
+    },
     getmsg() {
       this.cardnum = document.getElementById("cardnum").value.trim();
       this.pwd = document.getElementById("pwd").value.trim();
-       this.num+=1
+      this.num += 1;
       if (this.num < 5) {
         if (this.direct == 1) {
           let parmas = {
@@ -55,7 +86,7 @@ export default {
                 path: "/chongzhicarddetials",
                 query: { info: JSON.stringify(obj) }
               });
-            } 
+            }
           });
         } else {
           let parmas = {
@@ -66,7 +97,6 @@ export default {
           };
           this.http(parmas).then(res => {
             if (res.data.result == 0) {
-              // this.$toast(res.data.result)
               this.show = true;
               console.log(res);
               this.dataObject = res.data.dataObject;
@@ -79,13 +109,13 @@ export default {
               };
               this.$router.push({
                 path: "/giftcardetails",
-                query: { gift: JSON.stringify(obj) }
+                query: { gift: JSON.stringify(obj)}
               });
-            } 
+            }
           });
         }
-      }else{
-         Dialog.alert({
+      } else {
+        Dialog.alert({
           title: "您输入的错误已达5次",
           message: "可联系客服解决"
         })
@@ -97,16 +127,27 @@ export default {
           });
       }
     },
-    changenum() {
-      this.num += 1;
-      if ((this.num = 5)) {
-       
-      }
+    choose(ind) {
+      this.cardnum=this.historylist[ind];
+      this.showhistory=false;
     }
   },
   moutend() {},
   components: {
     Info
+  },
+  directives: {
+    
+  },
+  beforeDestroy() {
+    if (this.cardnum != "") {
+      this.historylist.push(this.cardnum);
+      if (this.historylist.length>3) {
+        this.historylist.splice(0,1);
+      } 
+      localStorage.setItem("history", JSON.stringify(this.historylist));
+    }
+    // localStorage.removeItem("history");
   }
 };
 </script>
@@ -116,12 +157,14 @@ export default {
   margin-top: 0.5rem;
   padding: 0.15rem;
   font-size: 0;
+  position: relative;
+  height: 100%;
   input {
     margin-top: 0.15rem;
     padding-left: 0.1rem;
     width: 100%;
     height: 0.45rem;
-    font-size: 0.14rem;
+    font-size: 0.16rem;
     border: 0.01rem solid #999999;
     border-radius: 0.05rem;
     box-sizing: border-box;
@@ -142,8 +185,26 @@ export default {
     li {
       line-height: 0.3rem;
       font-size: 0.14rem;
-      /* border-bottom: .01rem solid #CCC; */
     }
+  }
+}
+.historyclass {
+  position: absolute;
+  width: 3.5rem;
+  top: .8rem;
+  left: 0.15rem;
+  background: rgb(253, 253, 253);
+   border: .01rem solid #E5E5E5;
+   border-radius: .15rem;
+   padding: 0 .15rem;
+  z-index: 99;
+  li {
+    height: 0.45rem;
+    line-height: 0.45rem;
+    text-align: left;
+    border-bottom: .01rem solid #E5E5E5;
+    font-size: 0.14rem;
+    color: #72bb29;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div class="order_mo">
-    <div class="order_con" v-for="(item,index) in arry" :key="index">
-      <div  @click="LookDetails(item)">
+    <div class="order_con" v-for="(item,index) in arry" :key="index" @click.stop="LookDetails(item)">
+      <div  >
            <div class="order_tit" >
         <span>
           订单编号：
@@ -12,7 +12,7 @@
       <Info :list="item.orderItem" :totalprice="total"></Info>
       </div>
       <div class="order_zhuang">
-        <span class="two" @click="goto(item)">去评价</span>
+        <span class="two" @click.stop="goto(item)">去评价</span>
       </div>
     </div>
     <van-overlay :show="show" @click="show = false" />

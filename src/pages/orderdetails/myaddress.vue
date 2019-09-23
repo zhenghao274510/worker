@@ -78,58 +78,24 @@ export default {
       //  this.$router.push('/editaddress');
     },
     edaitAddress(e) {
-      if (this.direct == 0) {
-        if (e.isDefault == 0) {
-          e.isDefault = 1;
-        } else {
-          e.isDefault = 0;
-        }
-
-        let parmas = {
-          cmd: "updateAddress",
-          uid: this.uid,
-          addressId: e.addressId,
-          name: e.name,
-          phone: e.phone,
-          address: e.address,
-          detail: e.detail,
-          isDefault: e.isDefault
-        };
-
-        this.pay(parmas).then(res => {
-          console.log(res);
-          if (res.data.result == 0) {
-            this.$toast(res.data.resultNote);
-            this.GetEdaitAddress(e);
-            this.$router.go(-1);
-          }
-        });
+        sessionStorage.setItem("addressId", e.addressId);
+      if (this.direct==0) {      
+        this.$router.go(-1);
+      }else if(this.direct==1){
+        this.$router.push({path:'/editaddress',query:{direct:this.direct}});
       }
     },
-    GetEdaitAddress(data) {
-      this.dataList.forEach(item => {
-        if (item.isDefault == 1) {
-          item.isDefault = 0;
-          data.isDefault = 1;
-        }
-      });
-    },
-
     delAddress(e, ind) {
-      if (e.isDefault == 1) {
-        this.$toast("默认收货地址不能删除!");
-      } else {
-        let parmas = {
-          cmd: "delAddress",
-          uid: this.uid,
-          addressId: e.addressId
-        };
-        this.http(parmas).then(res => {
-          console.log(res);
-          this.$toast(res.data.resultNote);
-          this.dataList.splice(ind, 1);
-        });
-      }
+      let parmas = {
+        cmd: "delAddress",
+        uid: this.uid,
+        addressId: e.addressId
+      };
+      this.http(parmas).then(res => {
+        console.log(res);
+        this.$toast(res.data.resultNote);
+        this.dataList.splice(ind, 1);
+      });
     },
     Goto() {
       sessionStorage.removeItem("saveuse");
@@ -137,17 +103,13 @@ export default {
     },
     changeaddress(e) {
       console.log(e);
-      if (this.direct == 0) {
+      e.direct = this.direct;
+      sessionStorage.setItem("upaddress", JSON.stringify(e));
+      setTimeout(() => {
         this.$router.replace({
-          path: "/editaddress",
-          query: { info: JSON.stringify(e) }
+          path: "/editaddress"
         });
-      } else {
-        this.$router.push({
-          path: "/editaddress",
-          query: { info: JSON.stringify(e) }
-        });
-      }
+      });
     }
   },
   //生命周期 - 创建之前
@@ -253,7 +215,5 @@ export default {
 }
 .nomore {
   height: 0.5rem;
-  background: #ebe8e8;
-  position: fixed;
 }
 </style>

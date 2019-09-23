@@ -11,7 +11,7 @@
 </template>
  
 <script>
-import liPin from '@/components/public/lipincard'
+import liPin from '@/components/public/chongzhicard'
 export default {
  data () {
  return {

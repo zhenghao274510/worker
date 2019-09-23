@@ -24,7 +24,7 @@
 <script>
 //import 《组件名称》 from '《组件路径》';
 import { Dialog } from "vant";
-import liPin from "@/components/public/lipincard";
+import liPin from "@/components/public/chongzhicard";
 export default {
   data() {
     return {
